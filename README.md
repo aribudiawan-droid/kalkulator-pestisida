@@ -6,7 +6,7 @@ Kalkulator dosis dan volume semprot untuk pestisida, dengan fitur kalibrasi nozz
 
 **Dosis dan tangki**
 - Hitung total produk, total larutan semprot, dan produk per tangki dari luas lahan, dosis, dan volume semprot per hektar.
-- Pilih tipe formulasi: EC, SL, SC, EW (cair, satuan L) atau WP, WG, SG, GR (padat, satuan kg).
+- Pilih tipe formulasi: EC, SL, SC, EW, OD (cair, satuan L) atau WP, WG, SG, GR (padat, satuan kg).
 - Masukkan dosis dalam produk per hektar, g ai/ha (gram bahan aktif), atau g ae/ha (gram acid equivalent). Untuk dosis g ai/ha dan g ae/ha, isi kandungan bahan aktif dari label produk.
 - Hitung jumlah tangki, luas yang tercakup per tangki, dan konsentrasi larutan.
 - Hitung jumlah kemasan produk yang perlu dibeli, dibulatkan ke atas.

@@ -3,6 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#2f6b3a">
+<meta name="description" content="Kalkulator dosis, volume semprot, dan kalibrasi nozzle untuk herbisida dan pestisida.">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
 <title>Kalkulator Dosis dan Volume Semprot</title>
 <style>
   :root{--hijau:#2f6b3a;--hijau-muda:#e8f2e6;--abu:#5b6168;--garis:#d9dee3;--bg:#f7f8f6;--merah:#a63d2f;}
@@ -354,6 +359,11 @@
   updateLabel();
   hitungDosis();
   hitungKalibrasi();
+</script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+  }
 </script>
 </body>
 </html>

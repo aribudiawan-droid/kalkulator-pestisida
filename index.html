@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kalkulator Dosis dan Volume Semprot</title>
+<style>
+  :root{--hijau:#2f6b3a;--hijau-muda:#e8f2e6;--abu:#5b6168;--garis:#d9dee3;--bg:#f7f8f6;--merah:#a63d2f;}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:#1d2328;line-height:1.5}
+  header{background:var(--hijau);color:#fff;padding:18px 20px}
+  header h1{margin:0;font-size:1.25rem}
+  header p{margin:4px 0 0;font-size:.875rem;opacity:.9}
+  main{max-width:760px;margin:0 auto;padding:16px}
+  .tabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+  .tab{border:1px solid var(--hijau);background:#fff;color:var(--hijau);padding:8px 14px;border-radius:999px;cursor:pointer;font-size:.9rem}
+  .tab.aktif{background:var(--hijau);color:#fff}
+  .kartu{background:#fff;border:1px solid var(--garis);border-radius:12px;padding:16px;margin-bottom:14px}
+  .kartu h2{font-size:1rem;margin:0 0 10px;color:var(--hijau)}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media (max-width:560px){.grid{grid-template-columns:1fr}}
+  label{display:block;font-size:.85rem;color:var(--abu);margin-bottom:4px}
+  input,select{width:100%;padding:9px 10px;border:1px solid var(--garis);border-radius:8px;font-size:1rem;background:#fff}
+  input:focus,select:focus{outline:2px solid var(--hijau);border-color:transparent}
+  .bantu{font-size:.78rem;color:var(--abu);margin-top:4px}
+  .hasil{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}
+  @media (max-width:560px){.hasil{grid-template-columns:1fr}}
+  .stat{background:var(--hijau-muda);border-radius:10px;padding:12px}
+  .stat .nilai{font-size:1.2rem;font-weight:700;color:var(--hijau)}
+  .stat .ket{font-size:.8rem;color:var(--abu)}
+  .peringatan{background:#fbeeea;color:var(--merah);border-radius:8px;padding:10px 12px;font-size:.85rem;margin-top:12px;display:none}
+  .catatan{font-size:.8rem;color:var(--abu);margin-top:12px}
+  .btn{margin-top:12px;background:var(--hijau);color:#fff;border:0;border-radius:8px;padding:9px 14px;font-size:.9rem;cursor:pointer}
+  .btn.sekunder{background:#fff;color:var(--hijau);border:1px solid var(--hijau)}
+  .panel{display:none}
+  .panel.aktif{display:block}
+  .formula{font-family:ui-monospace,Menlo,monospace;font-size:.8rem;background:#f1f3f1;padding:8px 10px;border-radius:6px;margin-top:10px;color:#333}
+  .tabel{width:100%;border-collapse:collapse;font-size:.9rem;margin-top:8px}
+  .tabel td{padding:6px 4px;border-bottom:1px solid var(--garis)}
+  .tabel td:last-child{text-align:right;font-weight:600}
+</style>
+</head>
+<body>
+<header>
+  <h1>Kalkulator Dosis dan Volume Semprot</h1>
+  <p>Hitung kebutuhan herbisida per lahan dan kalibrasi nozzle di lapangan.</p>
+</header>
+
+<main>
+  <div class="tabs">
+    <button class="tab aktif" data-tab="dosis">1. Dosis dan Tangki</button>
+    <button class="tab" data-tab="kalibrasi">2. Kalibrasi Nozzle</button>
+  </div>
+
+  <!-- PANEL 1: DOSIS -->
+  <section class="panel aktif" id="panel-dosis">
+    <div class="kartu">
+      <h2>Input lahan dan produk</h2>
+      <div class="grid">
+        <div>
+          <label for="luas">Luas lahan (ha)</label>
+          <input type="number" id="luas" min="0" step="0.01" value="1">
+        </div>
+        <div>
+          <label for="formulasi">Tipe formulasi</label>
+          <select id="formulasi">
+            <option value="EC">EC - emulsifiable concentrate (cair, L)</option>
+            <option value="SL">SL - soluble liquid (cair, L)</option>
+            <option value="SC">SC - suspension concentrate (cair, L)</option>
+            <option value="EW">EW - emulsion oil-in-water (cair, L)</option>
+            <option value="WP">WP - wettable powder (padat, kg)</option>
+            <option value="WG">WG - water dispersible granule (padat, kg)</option>
+            <option value="SG">SG - soluble granule (padat, kg)</option>
+            <option value="GR">GR - granul (padat, kg, tidak disemprot)</option>
+          </select>
+        </div>
+        <div>
+          <label for="satuanDosis">Satuan dosis</label>
+          <select id="satuanDosis">
+            <option value="produk">Produk (L/ha atau kg/ha)</option>
+            <option value="gai">g ai/ha (gram bahan aktif per ha)</option>
+            <option value="gae">g ae/ha (gram acid equivalent per ha)</option>
+          </select>
+        </div>
+        <div>
+          <label for="kandungan" id="label-kandungan">Kandungan bahan aktif (g ai/L)</label>
+          <input type="number" id="kandungan" min="0" step="1" value="480">
+          <div class="bantu">Wajib diisi jika satuan dosis g ai/ha. Lihat nama dagang pada label, misalnya 480 g/L.</div>
+        </div>
+        <div>
+          <label for="dosis" id="label-dosis">Dosis produk per ha (sesuai label)</label>
+          <input type="number" id="dosis" min="0" step="0.01" value="2">
+          <div class="bantu">Ikuti dosis pada label produk atau anjuran penyuluh.</div>
+        </div>
+        <div>
+          <label for="volha">Volume semprot per ha (L/ha)</label>
+          <input type="number" id="volha" min="0" step="1" value="200">
+          <div class="bantu">Contoh: 200 L/ha untuk knapsack, 100 L/ha untuk boom sprayer.</div>
+        </div>
+        <div>
+          <label for="tangki">Kapasitas tangki (L)</label>
+          <input type="number" id="tangki" min="0" step="1" value="16">
+        </div>
+        <div>
+          <label for="kemasan" id="label-kemasan">Ukuran kemasan (L)</label>
+          <input type="number" id="kemasan" min="0" step="0.01" value="1">
+          <div class="bantu">Isi sesuai ukuran botol atau karung produk.</div>
+        </div>
+      </div>
+      <button class="btn" id="btn-hitung-dosis">Hitung</button>
+      <div class="peringatan" id="peringatan-dosis"></div>
+    </div>
+
+    <div class="kartu">
+      <h2>Hasil</h2>
+      <div class="hasil">
+        <div class="stat"><div class="nilai" id="r-total-produk">-</div><div class="ket">Total produk yang dibutuhkan</div></div>
+        <div class="stat"><div class="nilai" id="r-total-air">-</div><div class="ket">Total larutan semprot (L)</div></div>
+        <div class="stat"><div class="nilai" id="r-produk-tangki">-</div><div class="ket">Produk per tangki</div></div>
+        <div class="stat"><div class="nilai" id="r-luas-tangki">-</div><div class="ket">Luas tercakup per tangki (ha)</div></div>
+        <div class="stat"><div class="nilai" id="r-jumlah-tangki">-</div><div class="ket">Jumlah tangki yang diisi</div></div>
+        <div class="stat"><div class="nilai" id="r-konsentrasi">-</div><div class="ket">Konsentrasi larutan (% v/v)</div></div>
+        <div class="stat"><div class="nilai" id="r-kemasan">-</div><div class="ket">Kemasan produk yang dibeli (dibulatkan ke atas)</div></div>
+      </div>
+      <table class="tabel" id="tabel-tangki" style="display:none">
+        <tr><td>Tangki penuh</td><td id="t-penuh">-</td></tr>
+        <tr><td>Sisa larutan pada tangki terakhir</td><td id="t-sisa">-</td></tr>
+        <tr><td>Setara bahan aktif per ha</td><td id="t-gai">-</td></tr>
+      </table>
+      <div class="formula">
+        Total larutan = luas × volume/ha<br>
+        Produk per tangki = dosis/ha × (tangki ÷ volume/ha)<br>
+        Konsentrasi = dosis/ha ÷ volume/ha × 100 (hanya jika satuan L)<br>
+        Jika dosis dalam g ai/ha: produk/ha = g ai/ha ÷ kandungan (g ai per unit)<br>
+        Setara bahan aktif/ha = produk/ha × kandungan
+      </div>
+      <button class="btn sekunder" id="btn-salin-dosis">Salin hasil</button>
+      <div class="catatan">Hasil ini hanya perhitungan. Pastikan dosis dan cara aplikasi sesuai label produk dan peraturan setempat. Gunakan alat pelindung diri saat mencampur dan menyemprot.</div>
+    </div>
+  </section>
+
+  <!-- PANEL 2: KALIBRASI -->
+  <section class="panel" id="panel-kalibrasi">
+    <div class="kartu">
+      <h2>Ukur output nozzle</h2>
+      <div class="grid">
+        <div>
+          <label for="k-waktu">Waktu pengukuran (detik)</label>
+          <input type="number" id="k-waktu" min="1" step="1" value="60">
+          <div class="bantu">Alirkan semprotan ke gelas ukur selama waktu ini.</div>
+        </div>
+        <div>
+          <label for="k-nozzle">Jumlah nozzle yang diukur</label>
+          <input type="number" id="k-nozzle" min="1" step="1" value="1">
+        </div>
+        <div>
+          <label for="k-volume">Volume tertampung total (mL)</label>
+          <input type="number" id="k-volume" min="0" step="1" value="800">
+          <div class="bantu">Jumlah mL dari semua nozzle yang diukur.</div>
+        </div>
+        <div>
+          <label for="k-lebar">Lebar semprot per nozzle / boom (m)</label>
+          <input type="number" id="k-lebar" min="0" step="0.01" value="0.5">
+          <div class="bantu">Untuk knapsack dengan satu nozzle, isi lebar area yang disemprot per jalur.</div>
+        </div>
+        <div>
+          <label for="k-kecepatan">Kecepatan jalan (km/jam)</label>
+          <input type="number" id="k-kecepatan" min="0" step="0.1" value="3">
+        </div>
+        <div>
+          <label for="k-target">Target volume (L/ha)</label>
+          <input type="number" id="k-target" min="0" step="1" value="200">
+          <div class="bantu">Otomatis mengikuti volume/ha dari panel dosis jika Anda mengubahnya di sana.</div>
+        </div>
+      </div>
+      <button class="btn" id="btn-hitung-kalibrasi">Hitung kalibrasi</button>
+      <div class="peringatan" id="peringatan-kalibrasi"></div>
+    </div>
+
+    <div class="kartu">
+      <h2>Hasil kalibrasi</h2>
+      <div class="hasil">
+        <div class="stat"><div class="nilai" id="k-r-q">-</div><div class="ket">Output total (L/menit)</div></div>
+        <div class="stat"><div class="nilai" id="k-r-volha">-</div><div class="ket">Volume aktual (L/ha)</div></div>
+        <div class="stat"><div class="nilai" id="k-r-selisih">-</div><div class="ket">Selisih terhadap target</div></div>
+        <div class="stat"><div class="nilai" id="k-r-kecepatan">-</div><div class="ket">Kecepatan yang dibutuhkan (km/jam)</div></div>
+      </div>
+      <div class="formula">
+        Output (L/menit) = mL total ÷ 1000 × 60 ÷ detik<br>
+        Volume (L/ha) = 600 × output (L/menit) ÷ (lebar m × kecepatan km/jam)<br>
+        Kecepatan ideal = 600 × output ÷ (lebar m × target L/ha)
+      </div>
+      <button class="btn sekunder" id="btn-salin-kalibrasi">Salin hasil</button>
+      <div class="catatan">Ulangi pengukuran 2 sampai 3 kali dan ambil rata-ratanya. Periksa nozzle yang tersumbat atau aus, karena output yang tidak merata menyebabkan dosis tidak tepat.</div>
+    </div>
+  </section>
+  <footer style="max-width:760px;margin:0 auto;padding:8px 16px 28px;font-size:.8rem;color:var(--abu);text-align:center">
+    Dibuat oleh Ari Budiawan · <a href="mailto:aribudia@gmail.com" style="color:var(--hijau)">aribudia@gmail.com</a>
+  </footer>
+</main>
+
+<script>
+  const $ = id => document.getElementById(id);
+  const angka = v => { const n = parseFloat(v); return isNaN(n) ? 0 : n; };
+  const fmt = (n, d = 2) => (isFinite(n) ? n.toLocaleString('id-ID', { maximumFractionDigits: d, minimumFractionDigits: 0 }) : '-');
+
+  // Formulasi padat disukat dalam kg, formulasi cair dalam L
+  const FORMULASI_PADAT = ['WP', 'WG', 'SG', 'GR'];
+  const unitProduk = () => (FORMULASI_PADAT.includes($('formulasi').value) ? 'kg' : 'L');
+  function updateLabel() {
+    const u = unitProduk();
+    const mode = $('satuanDosis').value;
+    const unitBahan = mode === 'gae' ? 'g ae' : 'g ai';
+    $('label-dosis').textContent = mode === 'produk' ? 'Dosis produk per ha (' + u + '/ha, sesuai label)' : 'Dosis (' + unitBahan + '/ha)';
+    $('label-kandungan').textContent = 'Kandungan bahan aktif (' + unitBahan + '/' + u + ')';
+    $('label-kemasan').textContent = 'Ukuran kemasan (' + u + ')';
+  }
+  $('formulasi').addEventListener('change', updateLabel);
+  $('satuanDosis').addEventListener('change', updateLabel);
+
+  // ---------- Tab ----------
+  document.querySelectorAll('.tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(b => b.classList.remove('aktif'));
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('aktif'));
+      btn.classList.add('aktif');
+      $('panel-' + btn.dataset.tab).classList.add('aktif');
+    });
+  });
+
+  // ---------- Panel 1: Dosis ----------
+  let ringkasanDosis = '';
+  function hitungDosis() {
+    const luas = angka($('luas').value);
+    const modeDosis = $('satuanDosis').value;
+    const kandungan = angka($('kandungan').value);
+    let dosis = angka($('dosis').value);
+    if (modeDosis === 'gai' || modeDosis === 'gae') {
+      if (kandungan <= 0) {
+        const pwGai = $('peringatan-dosis');
+        pwGai.textContent = 'Isi kandungan bahan aktif produk untuk menghitung dosis dalam ' + (modeDosis === 'gae' ? 'g ae' : 'g ai') + '/ha.';
+        pwGai.style.display = 'block';
+        return;
+      }
+      dosis = dosis / kandungan; // dikonversi menjadi produk per ha
+    }
+    const volha = angka($('volha').value);
+    const tangki = angka($('tangki').value);
+    const satuan = unitProduk();
+    const pw = $('peringatan-dosis');
+
+    if (volha <= 0 || tangki <= 0) {
+      pw.textContent = 'Volume semprot per ha dan kapasitas tangki harus lebih dari 0.';
+      pw.style.display = 'block';
+      return;
+    }
+    if ($('formulasi').value === 'GR') {
+      pw.textContent = 'Granul biasanya ditabur, bukan disemprot. Volume semprot tidak berlaku; gunakan total produk.';
+      pw.style.display = 'block';
+    } else {
+      pw.style.display = 'none';
+    }
+
+    const totalProduk = luas * dosis;
+    const totalAir = luas * volha;
+    const luasPerTangki = tangki / volha;
+    const produkPerTangki = dosis * luasPerTangki;
+    const jumlahTangki = totalAir / tangki;
+    const tangkiPenuh = Math.floor(jumlahTangki);
+    const sisa = totalAir - tangkiPenuh * tangki;
+    const konsentrasi = satuan === 'L' ? (dosis / volha) * 100 : NaN;
+    const gaiHa = kandungan > 0 ? dosis * kandungan : NaN;
+
+    $('r-total-produk').textContent = fmt(totalProduk) + ' ' + satuan;
+    $('r-total-air').textContent = fmt(totalAir, 0) + ' L';
+    $('r-produk-tangki').textContent = fmt(produkPerTangki, 3) + ' ' + satuan;
+    $('r-luas-tangki').textContent = fmt(luasPerTangki, 4) + ' ha';
+    $('r-jumlah-tangki').textContent = fmt(Math.ceil(jumlahTangki), 0) + ' tangki';
+    $('r-konsentrasi').textContent = isFinite(konsentrasi) ? fmt(konsentrasi, 3) + ' %' : 'Hanya satuan L';
+
+    const ukuranKemasan = angka($('kemasan').value);
+    const jumlahKemasan = ukuranKemasan > 0 ? Math.ceil(totalProduk / ukuranKemasan) : NaN;
+    $('r-kemasan').textContent = isFinite(jumlahKemasan) ? fmt(jumlahKemasan, 0) + ' kemasan' : 'Isi ukuran kemasan';
+
+    $('tabel-tangki').style.display = 'table';
+    $('t-penuh').textContent = tangkiPenuh + ' tangki × ' + fmt(tangki, 0) + ' L';
+    $('t-sisa').textContent = sisa > 0.001 ? fmt(sisa, 1) + ' L' : 'Tidak ada';
+    const unitBahanHasil = modeDosis === 'gae' ? 'g ae' : 'g ai';
+    $('t-gai').textContent = isFinite(gaiHa) ? fmt(gaiHa, 1) + ' ' + unitBahanHasil + '/ha' : 'Isi kandungan bahan aktif';
+
+    ringkasanDosis =
+      'Formulasi: ' + $('formulasi').value + ' | Luas: ' + fmt(luas) + ' ha | Dosis: ' + fmt(dosis) + ' ' + satuan + '/ha | Volume: ' + fmt(volha, 0) + ' L/ha\n' +
+      'Setara bahan aktif: ' + (isFinite(gaiHa) ? fmt(gaiHa, 1) + ' ' + unitBahanHasil + '/ha' : '-') + '\n' +
+      'Kemasan yang dibeli: ' + (isFinite(jumlahKemasan) ? fmt(jumlahKemasan, 0) + ' x ' + fmt(ukuranKemasan, 2) + ' ' + satuan : '-') + '\n' +
+      'Total produk: ' + fmt(totalProduk) + ' ' + satuan + ' | Total larutan: ' + fmt(totalAir, 0) + ' L\n' +
+      'Per tangki (' + fmt(tangki, 0) + ' L): ' + fmt(produkPerTangki, 3) + ' ' + satuan + ' untuk ' + fmt(luasPerTangki, 4) + ' ha\n' +
+      'Jumlah tangki: ' + Math.ceil(jumlahTangki);
+  }
+
+  // ---------- Panel 2: Kalibrasi ----------
+  let ringkasanKalibrasi = '';
+  function hitungKalibrasi() {
+    const waktu = angka($('k-waktu').value);
+    const nozzle = angka($('k-nozzle').value);
+    const volumeMl = angka($('k-volume').value);
+    const lebar = angka($('k-lebar').value);
+    const kecepatan = angka($('k-kecepatan').value);
+    const target = angka($('k-target').value);
+    const pw = $('peringatan-kalibrasi');
+
+    if (waktu <= 0 || nozzle <= 0 || lebar <= 0 || kecepatan <= 0) {
+      pw.textContent = 'Waktu, jumlah nozzle, lebar semprot, dan kecepatan harus lebih dari 0.';
+      pw.style.display = 'block';
+      return;
+    }
+    pw.style.display = 'none';
+
+    const qLiterPerMenit = (volumeMl / 1000) * 60 / waktu;
+    const volAktual = 600 * qLiterPerMenit / (lebar * kecepatan);
+    const selisih = target > 0 ? ((volAktual - target) / target) * 100 : NaN;
+    const kecIdeal = target > 0 ? 600 * qLiterPerMenit / (lebar * target) : NaN;
+
+    $('k-r-q').textContent = fmt(qLiterPerMenit, 3) + ' L/menit';
+    $('k-r-volha').textContent = fmt(volAktual, 1) + ' L/ha';
+    $('k-r-selisih').textContent = isFinite(selisih) ? (selisih >= 0 ? '+' : '') + fmt(selisih, 1) + ' %' : '-';
+    $('k-r-kecepatan').textContent = isFinite(kecIdeal) ? fmt(kecIdeal, 2) + ' km/jam' : '-';
+
+    ringkasanKalibrasi =
+      'Output: ' + fmt(qLiterPerMenit, 3) + ' L/menit (' + fmt(nozzle, 0) + ' nozzle)\n' +
+      'Volume aktual: ' + fmt(volAktual, 1) + ' L/ha pada ' + fmt(kecepatan, 1) + ' km/jam, lebar ' + fmt(lebar) + ' m\n' +
+      'Target: ' + fmt(target, 0) + ' L/ha | Kecepatan ideal: ' + (isFinite(kecIdeal) ? fmt(kecIdeal, 2) + ' km/jam' : '-');
+  }
+
+  // ---------- Salin ----------
+  async function salin(teks, tombol) {
+    const asli = tombol.textContent;
+    try {
+      await navigator.clipboard.writeText(teks);
+      tombol.textContent = 'Tersalin';
+    } catch (e) {
+      tombol.textContent = 'Gagal menyalin';
+    }
+    setTimeout(() => { tombol.textContent = asli; }, 1500);
+  }
+
+  // ---------- Event ----------
+  $('btn-hitung-dosis').addEventListener('click', hitungDosis);
+  $('btn-hitung-kalibrasi').addEventListener('click', hitungKalibrasi);
+  $('btn-salin-dosis').addEventListener('click', e => { if (!ringkasanDosis) hitungDosis(); salin(ringkasanDosis, e.currentTarget); });
+  $('btn-salin-kalibrasi').addEventListener('click', e => { if (!ringkasanKalibrasi) hitungKalibrasi(); salin(ringkasanKalibrasi, e.currentTarget); });
+
+  // Volume target di panel kalibrasi mengikuti panel dosis
+  $('volha').addEventListener('input', () => { $('k-target').value = $('volha').value; });
+
+  // Hitung awal
+  updateLabel();
+  hitungDosis();
+  hitungKalibrasi();
+</script>
+</body>
+</html>

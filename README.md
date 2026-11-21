@@ -1,6 +1,6 @@
 # Kalkulator Pestisida
 
-Kalkulator dosis dan volume semprot untuk herbisida dan pestisida, dengan fitur kalibrasi nozzle. Halaman ini berupa satu file HTML tanpa instalasi, jadi cukup dibuka di browser.
+Kalkulator dosis dan volume semprot untuk pestisida, dengan fitur kalibrasi nozzle.
 
 ## Fitur
 
@@ -19,11 +19,10 @@ Kalkulator dosis dan volume semprot untuk herbisida dan pestisida, dengan fitur 
 
 ## Cara pakai
 
-1. Buka `index.html` di browser.
-2. Pilih tipe formulasi dan satuan dosis sesuai label produk.
-3. Isi luas lahan, dosis, volume semprot per hektar, kapasitas tangki, dan ukuran kemasan.
-4. Tekan **Hitung**.
-5. Untuk kalibrasi, buka tab **Kalibrasi Nozzle**, ukur output nozzle dengan gelas ukur, lalu isi datanya.
+1. Pilih tipe formulasi dan satuan dosis sesuai label produk.
+2. Isi luas lahan, dosis, volume semprot per hektar, kapasitas tangki, dan ukuran kemasan.
+3. Tekan **Hitung**.
+4. Untuk kalibrasi, buka tab **Kalibrasi Nozzle**, ukur output nozzle dengan gelas ukur, lalu isi datanya.
 
 ## Rumus
 
